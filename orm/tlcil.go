@@ -36,20 +36,20 @@ func SelectById[T any](id int64) (a *T, err error) {
 	return Table[T](defaultConn).SelectById(id)
 }
 
-func SelectsById[T any](startId, limit int64) (as []*T, err error) {
-	return Table[T](defaultConn).SelectsById(startId, limit)
+func SelectsByIdLimit[T any](startId, limit int64) (as []*T, err error) {
+	return Table[T](defaultConn).SelectsByIdLimit(startId, limit)
 }
 
-func SelectByIdx[T any](columnName string, columnValue []byte) (a *T, err error) {
+func SelectByIdx[T any](columnName string, columnValue any) (a *T, err error) {
 	return Table[T](defaultConn).SelectByIdx(columnName, columnValue)
 }
 
-func SelectAllByIdx[T any](columnName string, columnValue []byte) (as []*T, err error) {
+func SelectAllByIdx[T any](columnName string, columnValue any) (as []*T, err error) {
 	return Table[T](defaultConn).SelectAllByIdx(columnName, columnValue)
 }
 
-func SelectByIdxLimit[T any](columnName string, columnValue [][]byte, startId, limit int64) (as []*T, err error) {
-	return Table[T](defaultConn).SelectByIdxLimit(columnName, columnValue, startId, limit)
+func SelectByIdxLimit[T any](startId, limit int64, columnName string, columnValue ...any) (as []*T, err error) {
+	return Table[T](defaultConn).SelectByIdxLimit(startId, limit, columnName, columnValue...)
 }
 
 func Delete[T any](id int64) (err error) {

@@ -27,30 +27,30 @@ type UserAdmin struct {
 }
 
 func TestCreat(t *testing.T) {
-	RegisterDefaultResource(false, "192.168.2.108:7000", "mycli=123")
+	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
 	Create[UserAdmin]()
 }
 
 func TestInsert(t *testing.T) {
-	RegisterDefaultResource(false, "192.168.2.108:7000", "mycli=123")
-	Insert(&UserAdmin{Name: "dong2", Age: 23, Level: true, Content: []byte("this is tldb"), Sex: 2, Agent: 3.2, Achie: 90, City: 50})
+	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
+	Insert(&UserAdmin{Name: "dong", Age: 23, Level: true, Content: []byte("this is new tldb"), Sex: 2, Agent: 3.2, Achie: 90, City: 50})
 }
 
 func TestUpdate(t *testing.T) {
-	RegisterDefaultResource(false, "192.168.2.108:7000", "mycli=123")
+	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
 	Update(&UserAdmin{Id: 1, Name: "dong", Age: 33, Level: false, Content: []byte("this is new tldb"), Sex: 1, Agent: 3.1, Achie: 90, City: 50})
 }
 
 func TestSelect(t *testing.T) {
-	RegisterDefaultResource(false, "192.168.2.108:7000", "mycli=123")
+	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
 	if ua, err := SelectById[UserAdmin](1); err == nil {
 		logging.Debug(ua)
 	}
 }
 
-func TestSelectsById(t *testing.T) {
-	RegisterDefaultResource(false, "192.168.2.108:7000", "mycli=123")
-	if uas, err := SelectsById[UserAdmin](1, 10); err == nil {
+func TestSelectsByIdLimit(t *testing.T) {
+	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
+	if uas, err := SelectsByIdLimit[UserAdmin](1, 10); err == nil {
 		for _, ua := range uas {
 			logging.Debug(ua)
 		}
@@ -58,8 +58,8 @@ func TestSelectsById(t *testing.T) {
 }
 
 func TestSelectByIdxLimit(t *testing.T) {
-	RegisterDefaultResource(false, "192.168.2.108:7000", "mycli=123")
-	if uas, err := SelectByIdxLimit[UserAdmin]("Name", [][]byte{[]byte("dong")}, 0, 10); err == nil {
+	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
+	if uas, err := SelectByIdxLimit[UserAdmin](0, 10, "Name", "dong"); err == nil {
 		for _, ua := range uas {
 			logging.Debug(ua)
 		}

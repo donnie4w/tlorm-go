@@ -24,10 +24,10 @@ type Orm[T any] interface {
 	Drop() (err error)
 	AlterTable() (err error)
 	SelectById(id int64) (a *T, err error)
-	SelectsById(startId, limit int64) (as []*T, err error)
-	SelectByIdx(columnName string, columnValue []byte) (a *T, err error)
-	SelectAllByIdx(columnName string, columnValue []byte) (as []*T, err error)
-	SelectByIdxLimit(columnName string, columnValue [][]byte, startId, limit int64) (as []*T, err error)
+	SelectsByIdLimit(startId, limit int64) (as []*T, err error)
+	SelectByIdx(columnName string, columnValue any) (a *T, err error)
+	SelectAllByIdx(columnName string, columnValue any) (as []*T, err error)
+	SelectByIdxLimit(startId, limit int64, columnName string, columnValue ...any) (as []*T, err error)
 }
 
 func NewConn(tls bool, addr string, auth string) (conn *tlcli.Client, err error) {
@@ -147,7 +147,7 @@ func (this source[T]) SelectById(id int64) (a *T, err error) {
 	return
 }
 
-func (this source[T]) SelectsById(startId, limit int64) (as []*T, err error) {
+func (this source[T]) SelectsByIdLimit(startId, limit int64) (as []*T, err error) {
 	var t T
 	table_name := getObjectName(t)
 	if dblist, err := this.conn.SelectsByIdLimit(table_name, startId, limit); err == nil {
@@ -161,36 +161,54 @@ func (this source[T]) SelectsById(startId, limit int64) (as []*T, err error) {
 	return
 }
 
-func (this source[T]) SelectByIdx(columnName string, columnValue []byte) (a *T, err error) {
+func (this source[T]) SelectByIdx(columnName string, columnValue any) (a *T, err error) {
 	table_name := getObjectName(a)
-	if db, err := this.conn.SelectByIdx(table_name, columnName, columnValue); err == nil {
-		a, err = tBeanToStruct[T](db.GetID(), db.GetTBean())
+	v := reflect.ValueOf(a).Elem()
+	field := v.FieldByName(columnName)
+	if bs, err := anyTobyte(field, columnValue); err == nil {
+		if db, err := this.conn.SelectByIdx(table_name, columnName, bs); err == nil {
+			a, err = tBeanToStruct[T](db.GetID(), db.GetTBean())
+		}
 	}
 	return
 }
 
-func (this source[T]) SelectAllByIdx(columnName string, columnValue []byte) (as []*T, err error) {
+func (this source[T]) SelectAllByIdx(columnName string, columnValue any) (as []*T, err error) {
 	var a T
 	table_name := getObjectName(a)
-	if dblist, err := this.conn.SelectAllByIdx(table_name, columnName, columnValue); err == nil {
-		as = make([]*T, 0)
-		for _, db := range dblist {
-			if a, err := tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
-				as = append(as, a)
+	v := reflect.ValueOf(a)
+	field := v.FieldByName(columnName)
+	if bs, err := anyTobyte(field, columnValue); err == nil {
+		if dblist, err := this.conn.SelectAllByIdx(table_name, columnName, bs); err == nil {
+			as = make([]*T, 0)
+			for _, db := range dblist {
+				if a, err := tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
+					as = append(as, a)
+				}
 			}
 		}
 	}
 	return
 }
 
-func (this source[T]) SelectByIdxLimit(columnName string, columnValue [][]byte, startId, limit int64) (as []*T, err error) {
+func (this source[T]) SelectByIdxLimit(startId, limit int64, columnName string, columnValue ...any) (as []*T, err error) {
 	var a T
 	table_name := getObjectName(a)
-	if dblist, err := this.conn.SelectByIdxLimit(table_name, columnName, columnValue, startId, limit); err == nil {
-		as = make([]*T, 0)
-		for _, db := range dblist {
-			if a, err := tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
-				as = append(as, a)
+	v := reflect.ValueOf(a)
+	field := v.FieldByName(columnName)
+	bss := make([][]byte, 0)
+	for _, cv := range columnValue {
+		if bs, err := anyTobyte(field, cv); err == nil {
+			bss = append(bss, bs)
+		}
+	}
+	if len(bss) > 0 {
+		if dblist, err := this.conn.SelectByIdxLimit(table_name, columnName, bss, startId, limit); err == nil {
+			as = make([]*T, 0)
+			for _, db := range dblist {
+				if a, err := tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
+					as = append(as, a)
+				}
 			}
 		}
 	}

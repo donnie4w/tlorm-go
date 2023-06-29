@@ -29,7 +29,6 @@ type UserAdmin struct {
 func TestCreat(t *testing.T) {
 	RegisterDefaultResource(false, "192.168.2.108:7000", "mycli=123")
 	Create[UserAdmin]()
-	// Create(&UserAdmin{})
 }
 
 func TestInsert(t *testing.T) {

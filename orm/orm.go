@@ -21,7 +21,7 @@ type Orm[T any] interface {
 	Insert(a any) (seq int64, err error)
 	Update(a any) (err error)
 	Delete(id int64) (err error)
-	Truncate() (err error)
+	Drop() (err error)
 	AlterTable() (err error)
 	SelectById(id int64) (a *T, err error)
 	SelectsById(startId, limit int64) (as []*T, err error)
@@ -203,10 +203,10 @@ func (this source[T]) Delete(id int64) (err error) {
 	return this.conn.Delete(table_name, id)
 }
 
-func (this source[T]) Truncate() (err error) {
+func (this source[T]) Drop() (err error) {
 	var a T
 	table_name := getObjectName(a)
-	return this.conn.Truncate(table_name)
+	return this.conn.Drop(table_name)
 }
 
 func (this source[T]) AlterTable() (err error) {

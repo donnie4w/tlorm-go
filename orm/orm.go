@@ -57,7 +57,7 @@ func (this source[T]) Create() (err error) {
 func (this source[T]) getFieldIndex() (columns, indexs []string, err error) {
 	var a T
 	hasId := false
-	v := reflect.ValueOf(a).Elem()
+	v := reflect.ValueOf(a)
 	v.FieldByNameFunc(func(s string) bool {
 		if strings.ToLower(s) == "id" {
 			hasId = true
@@ -69,7 +69,7 @@ func (this source[T]) getFieldIndex() (columns, indexs []string, err error) {
 		err = errors.New("Id not found")
 		return
 	}
-	t := reflect.TypeOf(a).Elem()
+	t := reflect.TypeOf(a)
 	columns = make([]string, 0)
 	indexs = make([]string, 0)
 	for i := 0; i < t.NumField(); i++ {

@@ -56,7 +56,7 @@ func Delete[T any](id int64) (err error) {
 	return Table[T](defaultConn).Delete(id)
 }
 
-func Truncate[T any]() (err error) {
+func Drop[T any]() (err error) {
 	return Table[T](defaultConn).Drop()
 }
 

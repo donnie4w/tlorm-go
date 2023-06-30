@@ -38,12 +38,19 @@ func TestInsert(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
-	Update(&UserAdmin{Id: 1, Name: "dong", Age: 33, Level: false, Content: []byte("this is new tldb"), Sex: 1, Agent: 3.1, Achie: 90, City: 50})
+	Update(&UserAdmin{Id: 1, Name: "dong", Age: 33, Level: false, Content: []byte("this is new tldb2"), Sex: 1, Agent: 3.1, Achie: 90, City: 50})
 }
 
 func TestSelect(t *testing.T) {
 	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
 	if ua, err := SelectById[UserAdmin](1); err == nil {
+		logging.Debug(ua)
+	}
+}
+
+func TestSelectIdx(t *testing.T) {
+	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
+	if ua, err := SelectByIdx[UserAdmin]("Name", "dong"); err == nil {
 		logging.Debug(ua)
 	}
 }
@@ -59,7 +66,7 @@ func TestSelectsByIdLimit(t *testing.T) {
 
 func TestSelectByIdxLimit(t *testing.T) {
 	RegisterDefaultResource(true, "192.168.2.108:7000", "mycli=123")
-	if uas, err := SelectByIdxLimit[UserAdmin](0, 10, "Name", "dong"); err == nil {
+	if uas, err := SelectByIdxLimit[UserAdmin](0, 10, "Name", "dong", "dong2"); err == nil {
 		for _, ua := range uas {
 			logging.Debug(ua)
 		}

@@ -162,8 +162,9 @@ func (this source[T]) SelectsByIdLimit(startId, limit int64) (as []*T, err error
 }
 
 func (this source[T]) SelectByIdx(columnName string, columnValue any) (a *T, err error) {
-	table_name := getObjectName(a)
-	v := reflect.ValueOf(a).Elem()
+	var _a T
+	table_name := getObjectName(_a)
+	v := reflect.ValueOf(_a)
 	field := v.FieldByName(columnName)
 	if bs, err := anyTobyte(field, columnValue); err == nil {
 		if db, err := this.conn.SelectByIdx(table_name, columnName, bs); err == nil {

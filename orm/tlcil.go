@@ -32,6 +32,10 @@ func Update(a any) (err error) {
 	return Table[byte](defaultConn).Update(a)
 }
 
+func SelectId[T any]() (id int64, err error) {
+	return Table[T](defaultConn).SelectId()
+}
+
 func SelectById[T any](id int64) (a *T, err error) {
 	return Table[T](defaultConn).SelectById(id)
 }

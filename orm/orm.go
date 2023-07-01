@@ -141,7 +141,8 @@ func (this source[T]) Update(a any) (err error) {
 
 func (this source[T]) SelectById(id int64) (a *T, err error) {
 	table_name := getObjectName(a)
-	if db, err := this.conn.SelectById(table_name, id); err == nil {
+	var db *tlcli.DataBean
+	if db, err = this.conn.SelectById(table_name, id); err == nil {
 		a, err = tBeanToStruct[T](id, db.GetTBean())
 	}
 	return

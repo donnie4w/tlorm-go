@@ -184,25 +184,27 @@ func tBeanToStruct[T any](id int64, dm map[string][]byte) (a *T, e error) {
 		if err := recover(); err != nil {
 		}
 	}()
-	a = new(T)
-	if isPointer(a) {
-		v := reflect.ValueOf(a).Elem()
-		t := reflect.TypeOf(a).Elem()
-		for i := 0; i < t.NumField(); i++ {
-			if idxName := t.Field(i).Name; strings.ToLower(idxName) != "id" {
-				if _v, ok := dm[idxName]; ok {
-					f := v.FieldByName(idxName)
-					setBytesValueFromkind(f, _v)
+	if dm != nil {
+		a = new(T)
+		if isPointer(a) {
+			v := reflect.ValueOf(a).Elem()
+			t := reflect.TypeOf(a).Elem()
+			for i := 0; i < t.NumField(); i++ {
+				if idxName := t.Field(i).Name; strings.ToLower(idxName) != "id" {
+					if _v, ok := dm[idxName]; ok {
+						f := v.FieldByName(idxName)
+						setBytesValueFromkind(f, _v)
+					}
 				}
 			}
-		}
-		id_v := v.FieldByNameFunc(func(s string) bool {
-			return strings.ToLower(s) == "id"
-		})
-		if id_v.Kind() == reflect.Pointer {
-			id_v.Set(reflect.ValueOf(&id))
-		} else {
-			id_v.SetInt(id)
+			id_v := v.FieldByNameFunc(func(s string) bool {
+				return strings.ToLower(s) == "id"
+			})
+			if id_v.Kind() == reflect.Pointer {
+				id_v.Set(reflect.ValueOf(&id))
+			} else {
+				id_v.SetInt(id)
+			}
 		}
 	}
 	return

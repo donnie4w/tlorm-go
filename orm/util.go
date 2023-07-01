@@ -36,7 +36,7 @@ func getObjectName(a any) (tname string) {
 }
 
 func checkIndexField(field_name string, tag reflect.StructTag) (b bool) {
-	return strings.HasSuffix(field_name, "_") || string(tag) == "idx" || tag.Get("idx") == "1"
+	return string(tag) == "idx" || tag.Get("idx") == "1"
 }
 
 func getBytesValueFromkind(f reflect.Value) (_v []byte, e error) {
@@ -210,7 +210,7 @@ func tBeanToStruct[T any](id int64, dm map[string][]byte) (a *T, e error) {
 	return
 }
 
-func setBytesValueFromkind(f reflect.Value, bs []byte) (_v []byte, e error) {
+func setBytesValueFromkind(f reflect.Value, bs []byte) (e error) {
 	defer func() {
 		if err := recover(); err != nil {
 		}

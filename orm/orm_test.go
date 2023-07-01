@@ -72,3 +72,16 @@ func TestSelectByIdxLimit(t *testing.T) {
 		}
 	}
 }
+
+func Benchmark_Select(b *testing.B) {
+	b.StopTimer()
+	RegisterDefaultResource(false, "192.168.2.108:7000", "mycli=123")
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		SelectByIdx[UserAdmin]("Name", "dong")
+		// SelectByIdxLimit[UserAdmin](0, 10, "Name", "dong", "dong2")
+		// SelectById[UserAdmin](1)
+		// SelectId[UserAdmin]()
+	}
+
+}

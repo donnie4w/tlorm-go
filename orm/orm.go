@@ -23,6 +23,7 @@ type Orm[T any] interface {
 	Delete(id int64) (err error)
 	Drop() (err error)
 	AlterTable() (err error)
+	SelectId() (id int64, err error)
 	SelectById(id int64) (a *T, err error)
 	SelectsByIdLimit(startId, limit int64) (as []*T, err error)
 	SelectByIdx(columnName string, columnValue any) (a *T, err error)
@@ -136,6 +137,13 @@ func (this source[T]) Update(a any) (err error) {
 	} else {
 		err = errors.New("insert object must be pointer")
 	}
+	return
+}
+
+func (this source[T]) SelectId() (id int64, err error) {
+	var a T
+	table_name := getObjectName(a)
+	id, err = this.conn.SelectId(table_name)
 	return
 }
 

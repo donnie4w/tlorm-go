@@ -150,10 +150,12 @@ func (this source[T]) SelectById(id int64) (a *T, err error) {
 func (this source[T]) SelectsByIdLimit(startId, limit int64) (as []*T, err error) {
 	var t T
 	table_name := getObjectName(t)
-	if dblist, err := this.conn.SelectsByIdLimit(table_name, startId, limit); err == nil {
+	var dblist []*tlcli.DataBean
+	if dblist, err = this.conn.SelectsByIdLimit(table_name, startId, limit); err == nil {
 		as = make([]*T, 0)
 		for _, db := range dblist {
-			if a, err := tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
+			var a *T
+			if a, err = tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
 				as = append(as, a)
 			}
 		}
@@ -166,8 +168,10 @@ func (this source[T]) SelectByIdx(columnName string, columnValue any) (a *T, err
 	table_name := getObjectName(_a)
 	v := reflect.ValueOf(_a)
 	field := v.FieldByName(columnName)
-	if bs, err := anyTobyte(field, columnValue); err == nil {
-		if db, err := this.conn.SelectByIdx(table_name, columnName, bs); err == nil {
+	var bs []byte
+	if bs, err = anyTobyte(field, columnValue); err == nil {
+		var db *tlcli.DataBean
+		if db, err = this.conn.SelectByIdx(table_name, columnName, bs); err == nil {
 			a, err = tBeanToStruct[T](db.GetID(), db.GetTBean())
 		}
 	}
@@ -179,11 +183,14 @@ func (this source[T]) SelectAllByIdx(columnName string, columnValue any) (as []*
 	table_name := getObjectName(a)
 	v := reflect.ValueOf(a)
 	field := v.FieldByName(columnName)
-	if bs, err := anyTobyte(field, columnValue); err == nil {
-		if dblist, err := this.conn.SelectAllByIdx(table_name, columnName, bs); err == nil {
+	var bs []byte
+	if bs, err = anyTobyte(field, columnValue); err == nil {
+		var dblist []*tlcli.DataBean
+		if dblist, err = this.conn.SelectAllByIdx(table_name, columnName, bs); err == nil {
 			as = make([]*T, 0)
 			for _, db := range dblist {
-				if a, err := tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
+				var a *T
+				if a, err = tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
 					as = append(as, a)
 				}
 			}
@@ -199,15 +206,18 @@ func (this source[T]) SelectByIdxLimit(startId, limit int64, columnName string, 
 	field := v.FieldByName(columnName)
 	bss := make([][]byte, 0)
 	for _, cv := range columnValue {
-		if bs, err := anyTobyte(field, cv); err == nil {
+		var bs []byte
+		if bs, err = anyTobyte(field, cv); err == nil {
 			bss = append(bss, bs)
 		}
 	}
 	if len(bss) > 0 {
-		if dblist, err := this.conn.SelectByIdxLimit(table_name, columnName, bss, startId, limit); err == nil {
+		var dblist []*tlcli.DataBean
+		if dblist, err = this.conn.SelectByIdxLimit(table_name, columnName, bss, startId, limit); err == nil {
 			as = make([]*T, 0)
 			for _, db := range dblist {
-				if a, err := tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
+				var a *T
+				if a, err = tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
 					as = append(as, a)
 				}
 			}

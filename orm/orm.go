@@ -24,6 +24,7 @@ type Orm[T any] interface {
 	Drop() (err error)
 	AlterTable() (err error)
 	SelectId() (id int64, err error)
+	SelectIdByIdx(columnName string, columnValue any) (id int64, err error)
 	SelectById(id int64) (a *T, err error)
 	SelectsByIdLimit(startId, limit int64) (as []*T, err error)
 	SelectByIdx(columnName string, columnValue any) (a *T, err error)
@@ -135,7 +136,7 @@ func (this source[T]) Update(a any) (err error) {
 		}
 		err = this.conn.Update(table_name, id, dm)
 	} else {
-		err = errors.New("insert object must be pointer")
+		err = errors.New("update object must be pointer")
 	}
 	return
 }
@@ -144,6 +145,18 @@ func (this source[T]) SelectId() (id int64, err error) {
 	var a T
 	table_name := getObjectName(a)
 	id, err = this.conn.SelectId(table_name)
+	return
+}
+
+func (this source[T]) SelectIdByIdx(columnName string, columnValue any) (id int64, err error) {
+	var a T
+	table_name := getObjectName(a)
+	v := reflect.ValueOf(a)
+	field := v.FieldByName(columnName)
+	var bs []byte
+	if bs, err = anyTobyte(field, columnValue); err == nil {
+		id, err = this.conn.SelectIdByIdx(table_name, columnName, bs)
+	}
 	return
 }
 

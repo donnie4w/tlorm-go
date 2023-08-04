@@ -36,6 +36,10 @@ func SelectId[T any]() (id int64, err error) {
 	return Table[T](defaultConn).SelectId()
 }
 
+func SelectIdByIdx[T any](columnName string, columnValue any) (id int64, err error) {
+	return Table[T](defaultConn).SelectByIdx(columnName, columnValue)
+}
+
 func SelectById[T any](id int64) (a *T, err error) {
 	return Table[T](defaultConn).SelectById(id)
 }

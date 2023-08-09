@@ -20,6 +20,7 @@ type Orm[T any] interface {
 	Create() (err error)
 	Insert(a any) (seq int64, err error)
 	Update(a any) (err error)
+	UpdateNonzero(a any) (err error)
 	Delete(id int64) (err error)
 	Drop() (err error)
 	AlterTable() (err error)
@@ -107,6 +108,14 @@ func (this source[T]) Insert(a any) (seq int64, err error) {
 }
 
 func (this source[T]) Update(a any) (err error) {
+	return this._update(a, false)
+}
+
+func (this source[T]) UpdateNonzero(a any) (err error) {
+	return this._update(a, true)
+}
+
+func (this source[T]) _update(a any, nonzero bool) (err error) {
 	if isPointer(a) {
 		table_name := getObjectName(a)
 		v := reflect.ValueOf(a).Elem()
@@ -128,10 +137,12 @@ func (this source[T]) Update(a any) (err error) {
 		dm := make(map[string][]byte, 0)
 		for i := 0; i < t.NumField(); i++ {
 			if fName := t.Field(i).Name; strings.ToLower(fName) != "id" {
-				if f := v.FieldByName(fName); !f.IsZero() {
-					if idx_value, err := getBytesValueFromkind(f); err == nil {
-						dm[fName] = idx_value
-					}
+				f := v.FieldByName(fName)
+				if nonzero && f.IsZero() {
+					continue
+				}
+				if idx_value, err := getBytesValueFromkind(f); err == nil {
+					dm[fName] = idx_value
 				}
 			}
 		}

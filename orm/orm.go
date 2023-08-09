@@ -128,9 +128,10 @@ func (this source[T]) Update(a any) (err error) {
 		dm := make(map[string][]byte, 0)
 		for i := 0; i < t.NumField(); i++ {
 			if fName := t.Field(i).Name; strings.ToLower(fName) != "id" {
-				f := v.FieldByName(fName)
-				if idx_value, err := getBytesValueFromkind(f); err == nil {
-					dm[fName] = idx_value
+				if f := v.FieldByName(fName); !f.IsZero() {
+					if idx_value, err := getBytesValueFromkind(f); err == nil {
+						dm[fName] = idx_value
+					}
 				}
 			}
 		}

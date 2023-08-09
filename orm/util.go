@@ -40,10 +40,7 @@ func checkIndexField(field_name string, tag reflect.StructTag) (b bool) {
 }
 
 func getBytesValueFromkind(f reflect.Value) (_v []byte, e error) {
-	defer func() {
-		if err := recover(); err != nil {
-		}
-	}()
+	defer recover()
 	isSet := false
 	switch f.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -101,10 +98,7 @@ func getBytesValueFromkind(f reflect.Value) (_v []byte, e error) {
 }
 
 func anyTobyte(f reflect.Value, v any) (_v []byte, e error) {
-	defer func() {
-		if err := recover(); err != nil {
-		}
-	}()
+	defer recover()
 	isSet := false
 	switch f.Kind() {
 	case reflect.Bool:
@@ -180,10 +174,7 @@ func anyTobyte(f reflect.Value, v any) (_v []byte, e error) {
 }
 
 func tBeanToStruct[T any](id int64, dm map[string][]byte) (a *T, e error) {
-	defer func() {
-		if err := recover(); err != nil {
-		}
-	}()
+	defer recover()
 	if dm != nil {
 		a = new(T)
 		if isPointer(a) {
@@ -211,10 +202,7 @@ func tBeanToStruct[T any](id int64, dm map[string][]byte) (a *T, e error) {
 }
 
 func setBytesValueFromkind(f reflect.Value, bs []byte) (e error) {
-	defer func() {
-		if err := recover(); err != nil {
-		}
-	}()
+	defer recover()
 	switch f.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		f.SetInt(BytesToInt[int64](bs))

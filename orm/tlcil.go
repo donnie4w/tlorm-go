@@ -32,6 +32,10 @@ func Update(a any) (err error) {
 	return Table[byte](defaultConn).Update(a)
 }
 
+func UpdateNonzero(a any) (err error) {
+	return Table[byte](defaultConn).UpdateNonzero(a)
+}
+
 func SelectId[T any]() (id int64, err error) {
 	return Table[T](defaultConn).SelectId()
 }

@@ -33,12 +33,18 @@ func TestCreat(t *testing.T) {
 
 func TestInsert(t *testing.T) {
 	RegisterDefaultResource(false, "192.168.2.108:7100", "mycli=123")
-	Insert(&UserAdmin{Name: "dong", Age: 23, Level: true, Content: nil, Sex: 2, Agent: 3.2, Achie: 90, City: 50})
+	Insert(&UserAdmin{Name: "tom", Age: 23, Level: true, Content: nil, Sex: 2, Agent: 3.2, Achie: 90, City: 50})
 }
 
 func TestUpdate(t *testing.T) {
 	RegisterDefaultResource(false, "192.168.2.108:7100", "mycli=123")
-	err := Update(&UserAdmin{Id: 1, Name: "dong3", Content: []byte("this is new tldb2")})
+	err := Update(&UserAdmin{Id: 1, Name: "tom2", Age: 23, Level: true, Content: nil, Sex: 2, Agent: 3.2, Achie: 90, City: 50})
+	logging.Info(err)
+}
+
+func TestUpdateNonzero(t *testing.T) {
+	RegisterDefaultResource(false, "192.168.2.108:7100", "mycli=123")
+	err := UpdateNonzero(&UserAdmin{Id: 1, Name: "tom3", Content: []byte("this is new tldb2")})
 	logging.Info(err)
 }
 

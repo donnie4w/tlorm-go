@@ -28,10 +28,12 @@ func Insert(a any) (seq int64, err error) {
 	return Table[byte](defaultConn).Insert(a)
 }
 
+// update data for non nil
 func Update(a any) (err error) {
 	return Table[byte](defaultConn).Update(a)
 }
 
+// update data for non zero
 func UpdateNonzero(a any) (err error) {
 	return Table[byte](defaultConn).UpdateNonzero(a)
 }

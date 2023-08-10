@@ -141,7 +141,7 @@ func (this source[T]) _update(a any, nonzero bool) (err error) {
 				if nonzero && f.IsZero() {
 					continue
 				}
-				if idx_value, err := getBytesValueFromkind(f); err == nil {
+				if idx_value, err := getBytesValueFromkind(f); err == nil && idx_value != nil {
 					dm[fName] = idx_value
 				}
 			}

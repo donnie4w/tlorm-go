@@ -13,7 +13,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/donnie4w/tlcli-go/tlcli"
+	. "github.com/donnie4w/tlcli-go/tlcli"
 )
 
 type Orm[T any] interface {
@@ -33,17 +33,17 @@ type Orm[T any] interface {
 	SelectByIdxLimit(startId, limit int64, columnName string, columnValue ...any) (as []*T, err error)
 }
 
-func NewConn(tls bool, addr string, auth string) (conn *tlcli.Client, err error) {
-	conn, err = tlcli.NewConnect(tls, addr, auth)
+func NewConn(tls bool, addr string, auth string) (conn *Client, err error) {
+	conn, err = NewConnect(tls, addr, auth)
 	return
 }
 
-func Table[T any](conn *tlcli.Client) Orm[T] {
+func Table[T any](conn *Client) Orm[T] {
 	return source[T]{conn}
 }
 
 type source[T any] struct {
-	conn *tlcli.Client
+	conn *Client
 }
 
 func (this source[T]) Create() (err error) {
@@ -57,12 +57,12 @@ func (this source[T]) Create() (err error) {
 	return
 }
 
-func (this source[T]) getFieldIndex() (columns, indexs []string, err error) {
+func (this source[T]) getFieldIndex() (columns map[string]COLUMNTYPE, indexs []string, err error) {
 	var a T
 	hasId := false
 	v := reflect.ValueOf(a)
 	v.FieldByNameFunc(func(s string) bool {
-		if strings.ToLower(s) == "id" {
+		if len(s) == 2 && strings.ToLower(s) == "id" {
 			hasId = true
 			return true
 		}
@@ -73,11 +73,13 @@ func (this source[T]) getFieldIndex() (columns, indexs []string, err error) {
 		return
 	}
 	t := reflect.TypeOf(a)
-	columns = make([]string, 0)
+	columns = make(map[string]COLUMNTYPE, 0)
 	indexs = make([]string, 0)
 	for i := 0; i < t.NumField(); i++ {
 		if idxName := t.Field(i).Name; strings.ToLower(idxName) != "id" {
-			columns = append(columns, idxName)
+			field := v.FieldByName(idxName)
+			columns[idxName] = fieldToColumnType(field)
+			// columns = append(columns, idxName)
 			if checkIndexField(idxName, t.Field(i).Tag) {
 				indexs = append(indexs, idxName)
 			}
@@ -122,7 +124,7 @@ func (this source[T]) _update(a any, nonzero bool) (err error) {
 
 		hasId := false
 		id_v := v.FieldByNameFunc(func(s string) bool {
-			if strings.ToLower(s) == "id" {
+			if len(s) == 2 && strings.ToLower(s) == "id" {
 				hasId = true
 				return true
 			}
@@ -174,7 +176,7 @@ func (this source[T]) SelectIdByIdx(columnName string, columnValue any) (id int6
 
 func (this source[T]) SelectById(id int64) (a *T, err error) {
 	table_name := getObjectName(a)
-	var db *tlcli.DataBean
+	var db *DataBean
 	if db, err = this.conn.SelectById(table_name, id); err == nil {
 		a, err = tBeanToStruct[T](id, db.GetTBean())
 	}
@@ -184,7 +186,7 @@ func (this source[T]) SelectById(id int64) (a *T, err error) {
 func (this source[T]) SelectsByIdLimit(startId, limit int64) (as []*T, err error) {
 	var t T
 	table_name := getObjectName(t)
-	var dblist []*tlcli.DataBean
+	var dblist []*DataBean
 	if dblist, err = this.conn.SelectsByIdLimit(table_name, startId, limit); err == nil {
 		as = make([]*T, 0)
 		for _, db := range dblist {
@@ -204,7 +206,7 @@ func (this source[T]) SelectByIdx(columnName string, columnValue any) (a *T, err
 	field := v.FieldByName(columnName)
 	var bs []byte
 	if bs, err = anyTobyte(field, columnValue); err == nil {
-		var db *tlcli.DataBean
+		var db *DataBean
 		if db, err = this.conn.SelectByIdx(table_name, columnName, bs); err == nil {
 			a, err = tBeanToStruct[T](db.GetID(), db.GetTBean())
 		}
@@ -219,7 +221,7 @@ func (this source[T]) SelectAllByIdx(columnName string, columnValue any) (as []*
 	field := v.FieldByName(columnName)
 	var bs []byte
 	if bs, err = anyTobyte(field, columnValue); err == nil {
-		var dblist []*tlcli.DataBean
+		var dblist []*DataBean
 		if dblist, err = this.conn.SelectAllByIdx(table_name, columnName, bs); err == nil {
 			as = make([]*T, 0)
 			for _, db := range dblist {
@@ -246,7 +248,7 @@ func (this source[T]) SelectByIdxLimit(startId, limit int64, columnName string, 
 		}
 	}
 	if len(bss) > 0 {
-		var dblist []*tlcli.DataBean
+		var dblist []*DataBean
 		if dblist, err = this.conn.SelectByIdxLimit(table_name, columnName, bss, startId, limit); err == nil {
 			as = make([]*T, 0)
 			for _, db := range dblist {

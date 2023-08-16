@@ -21,7 +21,7 @@ func BytesToInt[T int64 | int32 | int16 | int8 | uint64 | uint32 | uint16 | uint
 }
 
 func IntToBytes[T int64 | int32 | int16 | int8 | uint64 | uint32 | uint16 | uint8 | float64 | float32](t T) []byte {
-	bytesBuffer := bytes.NewBuffer([]byte{})
-	binary.Write(bytesBuffer, binary.BigEndian, t)
-	return bytesBuffer.Bytes()
+	var buf bytes.Buffer
+	binary.Write(&buf, binary.BigEndian, t)
+	return buf.Bytes()
 }

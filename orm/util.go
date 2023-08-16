@@ -12,6 +12,8 @@ import (
 	"errors"
 	"reflect"
 	"strings"
+
+	. "github.com/donnie4w/tlcli-go/tlcli"
 )
 
 func isPointer(a any) bool {
@@ -43,11 +45,31 @@ func getBytesValueFromkind(f reflect.Value) (_v []byte, e error) {
 	defer recover()
 	isSet := false
 	switch f.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case reflect.Int:
 		_v, isSet = IntToBytes[int64](f.Int()), true
-	case reflect.Float32, reflect.Float64:
+	case reflect.Int8:
+		_v, isSet = IntToBytes[int8](int8(f.Int())), true
+	case reflect.Int16:
+		_v, isSet = IntToBytes[int16](int16(f.Int())), true
+	case reflect.Int32:
+		_v, isSet = IntToBytes[int32](int32(f.Int())), true
+	case reflect.Int64:
+		_v, isSet = IntToBytes[int64](f.Int()), true
+	case reflect.Float32:
+		_v, isSet = IntToBytes[float32](float32(f.Float())), true
+	case reflect.Float64:
 		_v, isSet = IntToBytes[float64](f.Float()), true
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+	case reflect.Uint:
+		_v, isSet = IntToBytes[uint64](f.Uint()), true
+	case reflect.Uint8:
+		_v, isSet = IntToBytes[uint8](uint8(f.Uint())), true
+	case reflect.Uint16:
+		_v, isSet = IntToBytes[uint16](uint16(f.Uint())), true
+	case reflect.Uint32:
+		_v, isSet = IntToBytes[uint32](uint32(f.Uint())), true
+	case reflect.Uint64:
+		_v, isSet = IntToBytes[uint64](f.Uint()), true
+	case reflect.Uintptr:
 		_v, isSet = IntToBytes[uint64](f.Uint()), true
 	case reflect.String:
 		_v, isSet = []byte(f.String()), true
@@ -60,29 +82,53 @@ func getBytesValueFromkind(f reflect.Value) (_v []byte, e error) {
 	case reflect.Pointer:
 		switch f.Interface().(type) {
 		case *int:
-			_v, isSet = IntToBytes[int64](int64(*(*int)(f.UnsafePointer()))), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[int64](int64(*(*int)(f.UnsafePointer()))), true
+			}
 		case *int8:
-			_v, isSet = IntToBytes[int8](*(*int8)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[int8](*(*int8)(f.UnsafePointer())), true
+			}
 		case *int16:
-			_v, isSet = IntToBytes[int16](*(*int16)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[int16](*(*int16)(f.UnsafePointer())), true
+			}
 		case *int32:
-			_v, isSet = IntToBytes[int32](*(*int32)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[int32](*(*int32)(f.UnsafePointer())), true
+			}
 		case *int64:
-			_v, isSet = IntToBytes[int64](*(*int64)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[int64](*(*int64)(f.UnsafePointer())), true
+			}
 		case *uint:
-			_v, isSet = IntToBytes[uint64](uint64(*(*uint)(f.UnsafePointer()))), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[uint64](uint64(*(*uint)(f.UnsafePointer()))), true
+			}
 		case *uint16:
-			_v, isSet = IntToBytes[uint16](*(*uint16)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[uint16](*(*uint16)(f.UnsafePointer())), true
+			}
 		case *uint32:
-			_v, isSet = IntToBytes[uint32](*(*uint32)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[uint32](*(*uint32)(f.UnsafePointer())), true
+			}
 		case *uint64:
-			_v, isSet = IntToBytes[uint64](*(*uint64)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[uint64](*(*uint64)(f.UnsafePointer())), true
+			}
 		case *float32:
-			_v, isSet = IntToBytes[float32](*(*float32)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[float32](*(*float32)(f.UnsafePointer())), true
+			}
 		case *float64:
-			_v, isSet = IntToBytes[float64](*(*float64)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = IntToBytes[float64](*(*float64)(f.UnsafePointer())), true
+			}
 		case *string:
-			_v, isSet = []byte(*(*string)(f.UnsafePointer())), true
+			if f.UnsafePointer() != nil {
+				_v, isSet = []byte(*(*string)(f.UnsafePointer())), true
+			}
 		}
 	case reflect.Slice:
 		switch f.Interface().(type) {
@@ -95,6 +141,73 @@ func getBytesValueFromkind(f reflect.Value) (_v []byte, e error) {
 		e = errors.New("type error")
 	}
 	return
+}
+
+func fieldToColumnType(f reflect.Value) (columnType COLUMNTYPE) {
+	defer recover()
+	switch f.Kind() {
+	case reflect.Bool:
+		return INT8
+	case reflect.Int:
+		return INT64
+	case reflect.Int8:
+		return INT8
+	case reflect.Int16:
+		return INT16
+	case reflect.Int32:
+		return INT32
+	case reflect.Int64:
+		return INT64
+	case reflect.Uint:
+		return UINT64
+	case reflect.Uint8:
+		return UINT8
+	case reflect.Uint16:
+		return UINT16
+	case reflect.Uint32:
+		return UINT32
+	case reflect.Uint64:
+		return UINT64
+	case reflect.Float32:
+		return FLOAT32
+	case reflect.Float64:
+		return FLOAT64
+	case reflect.String:
+		return STRING
+	case reflect.Pointer:
+		switch f.Interface().(type) {
+		case *int:
+			return INT64
+		case *int8:
+			return INT8
+		case *int16:
+			return INT16
+		case *int32:
+			return INT32
+		case *int64:
+			return INT64
+		case *uint:
+			return UINT64
+		case *uint16:
+			return UINT16
+		case *uint32:
+			return UINT32
+		case *uint64:
+			return UINT64
+		case *float32:
+			return FLOAT32
+		case *float64:
+			return FLOAT64
+		case *string:
+			return STRING
+		}
+	case reflect.Slice:
+		switch f.Interface().(type) {
+		case []uint8:
+			return BINAY
+		}
+	}
+	return BINAY
 }
 
 func anyTobyte(f reflect.Value, v any) (_v []byte, e error) {
@@ -204,11 +317,30 @@ func tBeanToStruct[T any](id int64, dm map[string][]byte) (a *T, e error) {
 func setBytesValueFromkind(f reflect.Value, bs []byte) (e error) {
 	defer recover()
 	switch f.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case reflect.Int:
 		f.SetInt(BytesToInt[int64](bs))
-	case reflect.Float32, reflect.Float64:
+	case reflect.Int8:
+		f.SetInt(int64(BytesToInt[int8](bs)))
+	case reflect.Int16:
+		f.SetInt(int64(BytesToInt[int16](bs)))
+	case reflect.Int32:
+		f.SetInt(int64(BytesToInt[int32](bs)))
+	case reflect.Int64:
+		f.SetInt(BytesToInt[int64](bs))
+	case reflect.Float32:
+		f.SetFloat(float64(BytesToInt[float32](bs)))
+	case reflect.Float64:
 		f.SetFloat(BytesToInt[float64](bs))
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+	case reflect.Uint:
+		f.SetUint(BytesToInt[uint64](bs))
+	case reflect.Uint8:
+		f.SetUint(uint64(BytesToInt[uint8](bs)))
+	case reflect.Uint16:
+		f.SetUint(uint64(BytesToInt[uint16](bs)))
+	case reflect.Uint32:
+		f.SetUint(uint64(BytesToInt[uint32](bs)))
+	case reflect.Uint64:
+	case reflect.Uintptr:
 		f.SetUint(BytesToInt[uint64](bs))
 	case reflect.String:
 		f.SetString(string(bs))

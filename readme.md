@@ -2,7 +2,7 @@
 
 ------------
 
-See the example at  http://tlnet.top/tlormgo
+See the example at  https://tlnet.top/tlormgo
 
 ```go
 type UserOrm struct {

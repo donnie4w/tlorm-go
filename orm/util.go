@@ -204,10 +204,10 @@ func fieldToColumnType(f reflect.Value) (columnType COLUMNTYPE) {
 	case reflect.Slice:
 		switch f.Interface().(type) {
 		case []uint8:
-			return BINAY
+			return BINARY
 		}
 	}
-	return BINAY
+	return BINARY
 }
 
 func anyTobyte(f reflect.Value, v any) (_v []byte, e error) {
@@ -340,6 +340,7 @@ func setBytesValueFromkind(f reflect.Value, bs []byte) (e error) {
 	case reflect.Uint32:
 		f.SetUint(uint64(BytesToInt[uint32](bs)))
 	case reflect.Uint64:
+		f.SetUint(uint64(BytesToInt[uint64](bs)))
 	case reflect.Uintptr:
 		f.SetUint(BytesToInt[uint64](bs))
 	case reflect.String:

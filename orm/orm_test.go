@@ -151,3 +151,9 @@ func Benchmark_DeleteBatch(b *testing.B) {
 	err := DeleteBatch[timmessage](3404, 3405, 3406)
 	fmt.Println(err)
 }
+
+func Benchmark_SelectIdByIdxSeq(b *testing.B) {
+	RegisterDefaultResource(true, "127.0.0.1:3336", "mycli=123")
+	id, err := SelectIdByIdxSeq[timmucmember]("Uuuid", uint64(15534333452477200259),49)
+	fmt.Println(id, err)
+}

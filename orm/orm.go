@@ -34,6 +34,7 @@ type Orm[T any] interface {
 	DeleteBatch(ids ...int64) (err error)
 	SelectByIdxDescLimit(columnName string, columnValue any, startId int64, limit int64) (as []*T, err error)
 	SelectByIdxAscLimit(columnName string, columnValue any, startId int64, limit int64) (as []*T, err error)
+	SelectIdByIdxSeq(columnName string, columnValue any, seq int64) (id int64, err error)
 }
 
 func NewConn(tls bool, addr string, auth string) (conn *Client, err error) {
@@ -332,6 +333,18 @@ func (this source[T]) SelectByIdxAscLimit(columnName string, columnValue any, st
 				}
 			}
 		}
+	}
+	return
+}
+
+func (this source[T]) SelectIdByIdxSeq(columnName string, columnValue any, seq int64) (id int64, err error) {
+	var a T
+	table_name := getObjectName(a)
+	v := reflect.ValueOf(a)
+	field := v.FieldByName(columnName)
+	var bs []byte
+	if bs, err = anyTobyte(field, columnValue); err == nil {
+		id, err = this.conn.SelectIdByIdxSeq(table_name, columnName, bs, seq)
 	}
 	return
 }

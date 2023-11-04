@@ -77,3 +77,17 @@ func Drop[T any]() (err error) {
 func AlterTable[T any]() (err error) {
 	return Table[T](defaultConn).AlterTable()
 }
+
+func DeleteBatch[T any](ids ...int64) (err error) {
+	return Table[T](defaultConn).DeleteBatch(ids...)
+}
+//Index fields that are updated frequently are not suitable for this method and may result in sorting errors
+//频繁更新的索引字段不适合此方法，并且可能导致排序错误
+func SelectByIdxDescLimit[T any](columnName string, columnValue any, startId int64, limit int64) (as []*T, err error) {
+	return Table[T](defaultConn).SelectByIdxDescLimit(columnName, columnValue, startId, limit)
+}
+//Index fields that are updated frequently are not suitable for this method and may result in sorting errors
+////频繁更新的索引字段不适合此方法，并且可能导致排序错误
+func SelectByIdxAscLimit[T any](columnName string, columnValue any, startId int64, limit int64) (as []*T, err error) {
+	return Table[T](defaultConn).SelectByIdxAscLimit(columnName, columnValue, startId, limit)
+}

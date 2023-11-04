@@ -31,6 +31,9 @@ type Orm[T any] interface {
 	SelectByIdx(columnName string, columnValue any) (a *T, err error)
 	SelectAllByIdx(columnName string, columnValue any) (as []*T, err error)
 	SelectByIdxLimit(startId, limit int64, columnName string, columnValue ...any) (as []*T, err error)
+	DeleteBatch(ids ...int64) (err error)
+	SelectByIdxDescLimit(columnName string, columnValue any, startId int64, limit int64) (as []*T, err error)
+	SelectByIdxAscLimit(columnName string, columnValue any, startId int64, limit int64) (as []*T, err error)
 }
 
 func NewConn(tls bool, addr string, auth string) (conn *Client, err error) {
@@ -281,6 +284,54 @@ func (this source[T]) AlterTable() (err error) {
 		err = this.conn.AlterTable(table_name, columns, indexs)
 	} else {
 		err = er
+	}
+	return
+}
+
+func (this source[T]) DeleteBatch(ids ...int64) (err error) {
+	var a T
+	table_name := getObjectName(a)
+	return this.conn.DeleteBatch(table_name, ids...)
+}
+
+func (this source[T]) SelectByIdxDescLimit(columnName string, columnValue any, startId int64, limit int64) (as []*T, err error) {
+	var a T
+	table_name := getObjectName(a)
+	v := reflect.ValueOf(a)
+	field := v.FieldByName(columnName)
+	var bs []byte
+	if bs, err = anyTobyte(field, columnValue); err == nil {
+		var dblist []*DataBean
+		if dblist, err = this.conn.SelectByIdxDescLimit(table_name, columnName, bs, startId, limit); err == nil {
+			as = make([]*T, 0)
+			for _, db := range dblist {
+				var a *T
+				if a, err = tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
+					as = append(as, a)
+				}
+			}
+		}
+	}
+	return
+}
+
+func (this source[T]) SelectByIdxAscLimit(columnName string, columnValue any, startId int64, limit int64) (as []*T, err error) {
+	var a T
+	table_name := getObjectName(a)
+	v := reflect.ValueOf(a)
+	field := v.FieldByName(columnName)
+	var bs []byte
+	if bs, err = anyTobyte(field, columnValue); err == nil {
+		var dblist []*DataBean
+		if dblist, err = this.conn.SelectByIdxAscLimit(table_name, columnName, bs, startId, limit); err == nil {
+			as = make([]*T, 0)
+			for _, db := range dblist {
+				var a *T
+				if a, err = tBeanToStruct[T](db.GetID(), db.GetTBean()); err == nil {
+					as = append(as, a)
+				}
+			}
+		}
 	}
 	return
 }

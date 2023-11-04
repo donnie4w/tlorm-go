@@ -46,7 +46,7 @@ func TestCreat(t *testing.T) {
 func TestInsert(t *testing.T) {
 	RegisterDefaultResource(true, "127.0.0.1:7100", "mycli=123")
 	achie := uint16(90)
-	Insert(&UserAdmin{Name: "tom", Age: 23, Level: true, Content: nil, Gender: 2, Agent: 3.2, Achie: &achie, City: 49})
+	Insert(&UserAdmin{Age: 23, Level: true, Content: nil, Gender: 2, Achie: &achie, City: 49})
 }
 
 func TestUpdate(t *testing.T) {
@@ -112,4 +112,42 @@ func TestIntToBytes(t *testing.T) {
 	bs := IntToBytes(i)
 	fmt.Println(bs)
 	fmt.Println(BytesToInt[int16](bs))
+}
+
+type timmucmember struct {
+	Id       int64
+	RelateId uint64 `idx:"1"`
+	Guuid    uint64 `idx:"1"`
+	Uuuid    uint64 `idx:"1"`
+	Status   uint8
+}
+
+type timmessage struct {
+	Id     int64
+	ChatId uint64 `idx:"1"`
+	Stanza []byte
+}
+
+func Benchmark_SelectByIdxAscLimit(b *testing.B) {
+	RegisterDefaultResource(true, "127.0.0.1:3336", "mycli=123")
+	as, err := SelectByIdxAscLimit[timmucmember]("Uuuid", uint64(15534333452477200259), 2, 1)
+	fmt.Println(err)
+	for _, a := range as {
+		fmt.Println(a)
+	}
+}
+
+func Benchmark_SelectByIdxDescLimit(b *testing.B) {
+	RegisterDefaultResource(true, "127.0.0.1:3336", "mycli=123")
+	as, err := SelectByIdxDescLimit[timmucmember]("Uuuid", uint64(15534333452477200259), 9, 4)
+	fmt.Println(err)
+	for _, a := range as {
+		fmt.Println(a)
+	}
+}
+
+func Benchmark_DeleteBatch(b *testing.B) {
+	RegisterDefaultResource(true, "127.0.0.1:3336", "mycli=123")
+	err := DeleteBatch[timmessage](3404, 3405, 3406)
+	fmt.Println(err)
 }
